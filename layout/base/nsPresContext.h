@@ -276,6 +276,8 @@ public:
    */
   void MediaFeatureValuesChanged(nsRestyleHint aRestyleHint,
                                  nsChangeHint aChangeHint = nsChangeHint(0));
+  void MediaFeatureValuesChangedAllDocuments(nsRestyleHint aRestyleHint,
+                                             nsChangeHint aChangeHint = nsChangeHint(0));
   void PostMediaFeatureValuesChangedEvent();
   void HandleMediaFeatureValuesChangedEvent();
   void FlushPendingMediaFeatureValuesChanged() {

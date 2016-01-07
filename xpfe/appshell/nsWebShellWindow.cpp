@@ -332,6 +332,12 @@ nsWebShellWindow::SizeModeChanged(nsSizeMode sizeMode)
   }
   mWindow->SetSizeMode(sizeMode);
 
+  nsIPresShell* presShell = GetPresShell();
+  if (presShell) {
+    presShell->GetPresContext()->MediaFeatureValuesChangedAllDocuments(eRestyle_Subtree,
+                                                                       NS_STYLE_HINT_REFLOW);
+  }
+
   // Persist mode, but not immediately, because in many (all?)
   // cases this will merge with the similar call in NS_SIZE and
   // write the attribute values only once.
