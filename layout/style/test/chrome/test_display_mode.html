@@ -5,15 +5,14 @@ https://bugzilla.mozilla.org/show_bug.cgi?id=1104916
 -->
 <head>
   <meta charset="utf-8">
-  <title>Test for Bug 1104916</title>
+  <title>Test for Display Mode</title>
   <script type="application/javascript" src="chrome://mochikit/content/tests/SimpleTest/SimpleTest.js"></script>
   <link rel="stylesheet" type="text/css" href="chrome://global/skin"/>
   <link rel="stylesheet" type="text/css" href="chrome://mochikit/content/tests/SimpleTest/test.css"/>
   <script type="application/javascript">
 
-/** Test for Bug 1104916 **/
+/** Test for Bug Display Mode **/
 SimpleTest.waitForExplicitFinish();
-Components.utils.import("resource://gre/modules/Services.jsm");
 
 function startTest() {
   var iframe = document.getElementById("subdoc");
@@ -48,7 +47,6 @@ function startTest() {
   shouldNotApply("all and (display-mode: standalone)");
   shouldNotApply("all and (display-mode: minimal-ui)");
 
-  var win = Services.wm.getMostRecentWindow("navigator:browser");
   // These view mode changes can be async
   var fullScreenChanged = waitForFullScreenChange();
   document.body.mozRequestFullScreen();

@@ -2088,15 +2088,16 @@ nsPresContext::PostRebuildAllStyleDataEvent(nsChangeHint aExtraHint,
   RestyleManager()->PostRebuildAllStyleDataEvent(aExtraHint, aRestyleHint);
 }
 
-struct MediaFeatureHints {
-   nsRestyleHint restyleHint;
-   nsChangeHint changeHint;
+struct MediaFeatureHints
+{
+  nsRestyleHint restyleHint;
+  nsChangeHint changeHint;
 };
 
 static bool
 MediaFeatureValuesChangedAllDocumentsCallback(nsIDocument* aDocument, void* aHints)
 {
-  MediaFeatureHints *hints = static_cast<MediaFeatureHints*>(aHints);
+  MediaFeatureHints* hints = static_cast<MediaFeatureHints*>(aHints);
   if (nsIPresShell* shell = aDocument->GetShell()) {
     if (nsPresContext* pc = shell->GetPresContext()) {
       pc->MediaFeatureValuesChangedAllDocuments(hints->restyleHint,
