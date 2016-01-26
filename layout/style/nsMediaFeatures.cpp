@@ -325,6 +325,9 @@ GetDisplayMode(nsPresContext* aPresContext, const nsMediaFeature*,
   int32_t mode = mainWidget ? mainWidget->SizeMode() : nsSizeMode_Normal;
 
   int32_t displayMode;
+  nsAutoCString url;
+  aPresContext->Document()->GetDocumentURI()->GetSpec(url);
+  printf("GetDisplayMode: [ mode = %d, url = %s], (fullscreen=%d, normal=%d)\n", mode, url.get(), nsSizeMode_Fullscreen, nsSizeMode_Normal);
   switch (mode) {
     case nsSizeMode_Fullscreen:
       displayMode = NS_STYLE_DISPLAY_MODE_FULLSCREEN;

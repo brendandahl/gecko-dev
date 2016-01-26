@@ -332,11 +332,7 @@ nsWebShellWindow::SizeModeChanged(nsSizeMode sizeMode)
   }
   mWindow->SetSizeMode(sizeMode);
 
-  nsIPresShell* presShell = GetPresShell();
-  if (presShell) {
-    presShell->GetPresContext()->MediaFeatureValuesChangedAllDocuments(eRestyle_Subtree,
-                                                                       NS_STYLE_HINT_REFLOW);
-  }
+  printf("nsWebShellWindow::SizeModeChanged: [%d = sizeMode]\n", sizeMode);
 
   // Persist mode, but not immediately, because in many (all?)
   // cases this will merge with the similar call in NS_SIZE and
@@ -358,6 +354,13 @@ nsWebShellWindow::SizeModeChanged(nsSizeMode sizeMode)
 
     // And always fire a user-defined sizemodechange event on the window
     ourWindow->DispatchCustomEvent(NS_LITERAL_STRING("sizemodechange"));
+  }
+
+  nsIPresShell* presShell = GetPresShell();
+  if (presShell) {
+    presShell->GetPresContext()->SizeModeChanged(sizeMode);
+    presShell->GetPresContext()->MediaFeatureValuesChangedAllDocuments(eRestyle_Subtree,
+                                                                       NS_STYLE_HINT_REFLOW);
   }
 
   // Note the current implementation of SetSizeMode just stores

@@ -1483,6 +1483,9 @@ nsCocoaWindow::DoMakeFullScreen(bool aFullScreen, bool aUseSystemTransition)
 
 
   mInFullScreenTransition = true;
+  // if (aFullScreen) {
+  //   mSizeMode = nsSizeMode_Fullscreen;
+  // }
 
   if (ShouldToggleNativeFullscreen(aFullScreen, aUseSystemTransition)) {
     // If we're using native fullscreen mode and our native window is invisible,
@@ -1939,7 +1942,7 @@ nsCocoaWindow::DispatchSizeModeEvent()
     return;
   }
 
-  mSizeMode = newMode;
+  nsBaseWidget::SetSizeMode(newMode);
   if (mWidgetListener) {
     mWidgetListener->SizeModeChanged(newMode);
   }

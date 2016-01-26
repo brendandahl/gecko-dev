@@ -7,6 +7,7 @@ https://bugzilla.mozilla.org/show_bug.cgi?id=1104916
   <meta charset="utf-8">
   <title>Test for Display Mode</title>
   <script type="application/javascript" src="chrome://mochikit/content/tests/SimpleTest/SimpleTest.js"></script>
+  <script type="application/javascript" src="chrome://mochikit/content/tests/SimpleTest/EventUtils.js"></script>
   <link rel="stylesheet" type="text/css" href="chrome://global/skin"/>
   <link rel="stylesheet" type="text/css" href="chrome://mochikit/content/tests/SimpleTest/test.css"/>
   <script type="application/javascript">
@@ -49,6 +50,7 @@ function startTest() {
 
   // These view mode changes can be async
   var fullScreenChanged = waitForFullScreenChange();
+  // synthesizeKey("VK_F11", {});
   document.body.mozRequestFullScreen();
   fullScreenChanged.then(function() {
     ok(document.mozFullScreenElement, "window entered fullscreen");

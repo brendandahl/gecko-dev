@@ -678,6 +678,16 @@ nsBaseWidget::SetSizeMode(nsSizeMode aMode)
              aMode == nsSizeMode_Maximized ||
              aMode == nsSizeMode_Fullscreen);
   mSizeMode = aMode;
+  printf("nsBaseWidget::SetSizeMode: [aMode = %d, ", aMode);
+  if (GetDocument()) {
+    nsAutoCString url;
+    GetDocument()->GetDocumentURI()->GetSpec(url);
+    printf("url = %s]\n", url.get());
+  } else {
+    printf("NO URL\n");
+  }
+
+
   return NS_OK;
 }
 

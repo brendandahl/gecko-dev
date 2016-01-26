@@ -2088,11 +2088,34 @@ nsPresContext::PostRebuildAllStyleDataEvent(nsChangeHint aExtraHint,
   RestyleManager()->PostRebuildAllStyleDataEvent(aExtraHint, aRestyleHint);
 }
 
+static void
+NotifyTabSizeModeChanged(TabParent* aTab, void* aArg)
+{
+  nsSizeMode* count = static_cast<nsSizeMode*>(aArg);
+  aTab->UpdateSizeMode(*count);
+}
+
+// XXXXXX!!!!! shoudl we call this for all browsers or just the tab!??
+void
+nsPresContext::SizeModeChanged(nsSizeMode aSizeMode)
+{
+  nsContentUtils::CallOnAllRemoteChildren(mDocument->GetWindow(),
+                                          NotifyTabSizeModeChanged, &aSizeMode);
+}
+
 struct MediaFeatureHints
 {
   nsRestyleHint restyleHint;
   nsChangeHint changeHint;
 };
+
+static void
+NotifyTabMediaFeatureValuesChanged(TabParent* aTab, void* aHints)
+{
+  // !!!!!!!!!!!! PASS HINTS ONWARD
+  // MediaFeatureHints* hints = static_cast<MediaFeatureHints*>(aHints);
+  aTab->MediaFeatureValuesChanged();
+}
 
 static bool
 MediaFeatureValuesChangedAllDocumentsCallback(nsIDocument* aDocument, void* aHints)
@@ -2116,6 +2139,11 @@ nsPresContext::MediaFeatureValuesChangedAllDocuments(nsRestyleHint aRestyleHint,
       aRestyleHint,
       aChangeHint
     };
+
+    nsContentUtils::CallOnAllRemoteChildren(mDocument->GetWindow(),
+                                            NotifyTabMediaFeatureValuesChanged,
+                                            &hints);
+
     mDocument->EnumerateSubDocuments(MediaFeatureValuesChangedAllDocumentsCallback,
                                      &hints);
 }
@@ -2124,6 +2152,10 @@ void
 nsPresContext::MediaFeatureValuesChanged(nsRestyleHint aRestyleHint,
                                          nsChangeHint aChangeHint)
 {
+  nsAutoCString url;
+  Document()->GetDocumentURI()->GetSpec(url);
+  printf("nsPresContext::MediaFeatureValuesChanged [url = %s]\n", url.get());
+
   mPendingMediaFeatureValuesChanged = false;
 
   // MediumFeaturesChanged updates the applied rules, so it always gets called.

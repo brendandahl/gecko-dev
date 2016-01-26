@@ -21,6 +21,7 @@
 #include "nsIObserver.h"
 #include "nsITimer.h"
 #include "nsCRT.h"
+#include "nsIWidgetListener.h"
 #include "FramePropertyTable.h"
 #include "nsGkAtoms.h"
 #include "nsCycleCollectionParticipant.h"
@@ -283,6 +284,8 @@ public:
    */
   void MediaFeatureValuesChangedAllDocuments(nsRestyleHint aRestyleHint,
                                              nsChangeHint aChangeHint = nsChangeHint(0));
+
+  void SizeModeChanged(nsSizeMode aSizeMode);
   void PostMediaFeatureValuesChangedEvent();
   void HandleMediaFeatureValuesChangedEvent();
   void FlushPendingMediaFeatureValuesChanged() {

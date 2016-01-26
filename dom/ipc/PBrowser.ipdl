@@ -562,7 +562,8 @@ child:
          TextureFactoryIdentifier textureFactoryIdentifier,
          uint64_t layersId,
          nullable PRenderFrame renderFrame,
-         bool parentIsActive);
+         bool parentIsActive,
+         nsSizeMode sizeMode);
 
     LoadURL(nsCString uri, BrowserConfiguration config, ShowInfo info);
 
@@ -570,9 +571,13 @@ child:
 
     CacheFileDescriptor(nsString path, FileDescriptor fd);
 
-    UpdateDimensions(CSSRect rect, CSSSize size, nsSizeMode sizeMode,
+    UpdateDimensions(CSSRect rect, CSSSize size,
                      ScreenOrientationInternal orientation,
                      LayoutDeviceIntPoint chromeDisp) compressall;
+
+    UpdateSizeMode(nsSizeMode sizeMode);
+
+    MediaFeatureValuesChanged();
 
     UpdateFrame(FrameMetrics frame);
 

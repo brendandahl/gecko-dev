@@ -458,6 +458,12 @@ addEventListener("ZoomChangeUsingMouseWheel", function () {
   sendAsyncMessage("ZoomChangeUsingMouseWheel", {});
 }, false);
 
+addEventListener("sizemodechange", function () {
+  Cu.import("resource://gre/modules/Console.jsm");
+  console.log("YOHOHO!!!!!!!!!!!!!!!!!!!!");
+  dump("YOHOHO!!!!!!!!!!!!!!!!!!!!!!!!!!\n");
+}, false);
+
 addMessageListener("UpdateCharacterSet", function (aMessage) {
   docShell.charset = aMessage.data.value;
   docShell.gatherCharsetMenuTelemetry();
