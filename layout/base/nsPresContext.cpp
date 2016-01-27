@@ -2092,15 +2092,15 @@ static void
 NotifyTabSizeModeChanged(TabParent* aTab, void* aArg)
 {
   nsSizeMode* count = static_cast<nsSizeMode*>(aArg);
-  aTab->UpdateSizeMode(*count);
+  aTab->SizeModeChanged(*count);
 }
 
-// XXXXXX!!!!! shoudl we call this for all browsers or just the tab!??
 void
 nsPresContext::SizeModeChanged(nsSizeMode aSizeMode)
 {
   nsContentUtils::CallOnAllRemoteChildren(mDocument->GetWindow(),
                                           NotifyTabSizeModeChanged, &aSizeMode);
+  MediaFeatureValuesChangedAllDocuments(eRestyle_Subtree, NS_STYLE_HINT_REFLOW);
 }
 
 struct MediaFeatureHints
@@ -2108,14 +2108,6 @@ struct MediaFeatureHints
   nsRestyleHint restyleHint;
   nsChangeHint changeHint;
 };
-
-static void
-NotifyTabMediaFeatureValuesChanged(TabParent* aTab, void* aHints)
-{
-  // !!!!!!!!!!!! PASS HINTS ONWARD
-  // MediaFeatureHints* hints = static_cast<MediaFeatureHints*>(aHints);
-  aTab->MediaFeatureValuesChanged();
-}
 
 static bool
 MediaFeatureValuesChangedAllDocumentsCallback(nsIDocument* aDocument, void* aHints)
@@ -2139,10 +2131,6 @@ nsPresContext::MediaFeatureValuesChangedAllDocuments(nsRestyleHint aRestyleHint,
       aRestyleHint,
       aChangeHint
     };
-
-    nsContentUtils::CallOnAllRemoteChildren(mDocument->GetWindow(),
-                                            NotifyTabMediaFeatureValuesChanged,
-                                            &hints);
 
     mDocument->EnumerateSubDocuments(MediaFeatureValuesChangedAllDocumentsCallback,
                                      &hints);

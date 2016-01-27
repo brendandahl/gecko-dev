@@ -1006,11 +1006,11 @@ TabParent::UpdateDimensions(const nsIntRect& rect, const ScreenIntSize& size)
 }
 
 void
-TabParent::UpdateSizeMode(const nsSizeMode& aSizeMode)
+TabParent::SizeModeChanged(const nsSizeMode& aSizeMode)
 {
   if (!mIsDestroyed && aSizeMode != mSizeMode) {
     mSizeMode = aSizeMode;
-    Unused << SendUpdateSizeMode(aSizeMode);
+    Unused << SendSizeModeChanged(aSizeMode);
   }
 }
 
@@ -1035,14 +1035,6 @@ TabParent::UIResolutionChanged()
     // We don't want to send that value to content. Just send -1 for it too in
     // that case.
     Unused << SendUIResolutionChanged(mDPI, mDPI < 0 ? -1.0 : mDefaultScale.scale);
-  }
-}
-
-void
-TabParent::MediaFeatureValuesChanged()
-{
-  if (!mIsDestroyed) {
-    Unused << SendMediaFeatureValuesChanged();
   }
 }
 

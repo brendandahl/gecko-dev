@@ -1630,28 +1630,20 @@ TabChild::RecvUpdateDimensions(const CSSRect& rect, const CSSSize& size,
 }
 
 bool
-TabChild::RecvUpdateSizeMode(const nsSizeMode& sizeMode)
+TabChild::RecvSizeModeChanged(const nsSizeMode& sizeMode)
 {
-    printf("TabChild::RecvUpdateSizeMode: [sizeMode = %d]\n", sizeMode);
+    printf("TabChild::RecvSizeModeChanged: [sizeMode = %d]\n", sizeMode);
     mPuppetWidget->SetSizeMode(sizeMode);
-    return true;
-}
-
-bool
-TabChild::RecvMediaFeatureValuesChanged()
-{
-  printf("TabChild::RecvMediaFeatureValuesChanged\n");
-  nsCOMPtr<nsIDocument> document(GetDocument());
-  nsCOMPtr<nsIPresShell> presShell = document->GetShell();
-  if (presShell) {
-    nsPresContext* presContext = presShell->GetPresContext();
-    if (presContext) {
-      presContext->MediaFeatureValuesChangedAllDocuments(eRestyle_Subtree,
-                                                         NS_STYLE_HINT_REFLOW);
+    nsCOMPtr<nsIDocument> document(GetDocument());
+    nsCOMPtr<nsIPresShell> presShell = document->GetShell();
+    if (presShell) {
+      nsPresContext* presContext = presShell->GetPresContext();
+      if (presContext) {
+        presContext->MediaFeatureValuesChangedAllDocuments(eRestyle_Subtree,
+                                                           NS_STYLE_HINT_REFLOW);
+      }
     }
-  }
-
-  return true;
+    return true;
 }
 
 bool

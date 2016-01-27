@@ -332,10 +332,7 @@ public:
                        const ScreenOrientationInternal& aOrientation,
                        const LayoutDeviceIntPoint& aChromeDisp) override;
   virtual bool
-  RecvUpdateSizeMode(const nsSizeMode& aSizeMode) override;
-
-  virtual bool
-  RecvMediaFeatureValuesChanged() override;
+  RecvSizeModeChanged(const nsSizeMode& aSizeMode) override;
 
   virtual bool
   RecvUpdateFrame(const layers::FrameMetrics& aFrameMetrics) override;

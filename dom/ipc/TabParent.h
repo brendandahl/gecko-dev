@@ -364,9 +364,7 @@ public:
 
   void UpdateDimensions(const nsIntRect& aRect, const ScreenIntSize& aSize);
 
-  void UpdateSizeMode(const nsSizeMode& aSizeMode);
-
-  void MediaFeatureValuesChanged();
+  void SizeModeChanged(const nsSizeMode& aSizeMode);
 
   void UpdateFrame(const layers::FrameMetrics& aFrameMetrics);
 

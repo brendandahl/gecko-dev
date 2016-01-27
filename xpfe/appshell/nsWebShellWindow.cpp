@@ -359,8 +359,6 @@ nsWebShellWindow::SizeModeChanged(nsSizeMode sizeMode)
   nsIPresShell* presShell = GetPresShell();
   if (presShell) {
     presShell->GetPresContext()->SizeModeChanged(sizeMode);
-    presShell->GetPresContext()->MediaFeatureValuesChangedAllDocuments(eRestyle_Subtree,
-                                                                       NS_STYLE_HINT_REFLOW);
   }
 
   // Note the current implementation of SetSizeMode just stores

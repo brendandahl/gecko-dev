@@ -575,9 +575,7 @@ child:
                      ScreenOrientationInternal orientation,
                      LayoutDeviceIntPoint chromeDisp) compressall;
 
-    UpdateSizeMode(nsSizeMode sizeMode);
-
-    MediaFeatureValuesChanged();
+    SizeModeChanged(nsSizeMode sizeMode);
 
     UpdateFrame(FrameMetrics frame);
 
