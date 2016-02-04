@@ -93,9 +93,6 @@ XPCOMUtils.defineLazyServiceGetter(this, "Profiler",
 XPCOMUtils.defineLazyModuleGetter(this, "SimpleServiceDiscovery",
                                   "resource://gre/modules/SimpleServiceDiscovery.jsm");
 
-XPCOMUtils.defineLazyModuleGetter(this, "WebappManager",
-                                  "resource://gre/modules/WebappManager.jsm");
-
 XPCOMUtils.defineLazyModuleGetter(this, "CharsetMenu",
                                   "resource://gre/modules/CharsetMenu.jsm");
 
@@ -268,65 +265,6 @@ if (AppConstants.MOZ_WEBRTC) {
     "@mozilla.org/mediaManagerService;1", "nsIMediaManagerService");
 }
 
-XPCOMUtils.defineLazyModuleGetter(
-  this,
-  "DOMApplicationRegistry",
-  "resource://gre/modules/Webapps.jsm",
-  null,
-  function() {
-    XPCOMUtils.defineLazyServiceGetter(this, "ppmm",
-                                   "@mozilla.org/parentprocessmessagemanager;1",
-                                   "nsIMessageBroadcaster");
-
-    // Keep the messages in sync with the initialization in Webapps.jsm (bug 1171013).
-    this.messages = ["Webapps:Install",
-                     "Webapps:Uninstall",
-                     "Webapps:GetSelf",
-                     "Webapps:CheckInstalled",
-                     "Webapps:GetInstalled",
-                     "Webapps:GetNotInstalled",
-                     "Webapps:Launch",
-                     "Webapps:LocationChange",
-                     "Webapps:InstallPackage",
-                     "Webapps:GetList",
-                     "Webapps:RegisterForMessages",
-                     "Webapps:UnregisterForMessages",
-                     "Webapps:CancelDownload",
-                     "Webapps:CheckForUpdate",
-                     "Webapps:Download",
-                     "Webapps:ApplyDownload",
-                     "Webapps:Install:Return:Ack",
-                     "Webapps:AddReceipt",
-                     "Webapps:RemoveReceipt",
-                     "Webapps:ReplaceReceipt",
-                     "Webapps:RegisterBEP",
-                     "Webapps:Export",
-                     "Webapps:Import",
-                     "Webapps:GetIcon",
-                     "Webapps:ExtractManifest",
-                     "Webapps:SetEnabled",
-                     "child-process-shutdown"];
-
-    this.messages.forEach(msgName => {
-      this.ppmm.addMessageListener(msgName, this);
-    });
-  },
-  function() {
-    this.messages.forEach(msgName => {
-      this.ppmm.removeMessageListener(msgName, this);
-    });
-  },
-  {
-    receiveMessage: function() {
-      // This is called only once when we receive a message for the first time.
-      // With this, we trigger the import of Webapps.jsm and forward the message
-      // to the real registry.
-      return DOMApplicationRegistry.receiveMessage.apply(
-          DOMApplicationRegistry, arguments);
-    }
-  }
-);
-
 XPCOMUtils.defineLazyModuleGetter(this, "Log",
   "resource://gre/modules/AndroidLog.jsm", "AndroidLog");
 
@@ -447,15 +385,6 @@ var BrowserApp = {
     Services.obs.addObserver(this, "android-set-pref", false);
     Services.obs.addObserver(this, "gather-telemetry", false);
     Services.obs.addObserver(this, "keyword-search", false);
-    Services.obs.addObserver(this, "webapps-runtime-install", false);
-    Services.obs.addObserver(this, "webapps-runtime-install-package", false);
-    Services.obs.addObserver(this, "webapps-ask-install", false);
-    Services.obs.addObserver(this, "webapps-ask-uninstall", false);
-    Services.obs.addObserver(this, "webapps-launch", false);
-    Services.obs.addObserver(this, "webapps-runtime-uninstall", false);
-    Services.obs.addObserver(this, "Webapps:AutoInstall", false);
-    Services.obs.addObserver(this, "Webapps:Load", false);
-    Services.obs.addObserver(this, "Webapps:AutoUninstall", false);
     Services.obs.addObserver(this, "sessionstore-state-purge-complete", false);
     Services.obs.addObserver(this, "Fonts:Reload", false);
 
@@ -655,13 +584,6 @@ var BrowserApp = {
   setLocale: function (locale) {
     console.log("browser.js: requesting locale set: " + locale);
     Messaging.sendRequest({ type: "Locale:Set", locale: locale });
-  },
-
-  _initRuntime: function(status, url, callback) {
-    let sandbox = {};
-    Services.scriptloader.loadSubScript("chrome://browser/content/WebappRT.js", sandbox);
-    window.WebappRT = sandbox.WebappRT;
-    WebappRT.init(status, url, callback);
   },
 
   initContextMenu: function () {
@@ -1286,15 +1208,6 @@ var BrowserApp = {
       tabID: aTab.id
     };
     Messaging.sendRequest(message);
-  },
-
-  _loadWebapp: function(aMessage) {
-    // Entry point for WebApps. This is the point in which we know
-    // the code is being used as a WebApp runtime.
-    this._initRuntime(this._startupStatus, aMessage.url, aUrl => {
-      this.manifestUrl = aMessage.url;
-      this.addTab(aUrl, { title: aMessage.name });
-    });
   },
 
   // Calling this will update the state in BrowserApp after a tab has been
@@ -1947,44 +1860,6 @@ var BrowserApp = {
 
       case "gather-telemetry":
         Messaging.sendRequest({ type: "Telemetry:Gather" });
-        break;
-
-      case "webapps-runtime-install":
-        WebappManager.install(JSON.parse(aData), aSubject);
-        break;
-
-      case "webapps-runtime-install-package":
-        WebappManager.installPackage(JSON.parse(aData), aSubject);
-        break;
-
-      case "webapps-ask-install":
-        WebappManager.askInstall(JSON.parse(aData));
-        break;
-
-      case "webapps-ask-uninstall":
-        WebappManager.askUninstall(JSON.parse(aData));
-        break;
-
-      case "webapps-launch": {
-        WebappManager.launch(JSON.parse(aData));
-        break;
-      }
-
-      case "webapps-runtime-uninstall": {
-        WebappManager.uninstall(JSON.parse(aData), aSubject);
-        break;
-      }
-
-      case "Webapps:AutoInstall":
-        WebappManager.autoInstall(JSON.parse(aData));
-        break;
-
-      case "Webapps:Load":
-        this._loadWebapp(JSON.parse(aData));
-        break;
-
-      case "Webapps:AutoUninstall":
-        WebappManager.autoUninstall(JSON.parse(aData));
         break;
 
       case "Locale:OS":
@@ -4360,12 +4235,6 @@ Tab.prototype = {
 
   onLocationChange: function(aWebProgress, aRequest, aLocationURI, aFlags) {
     let contentWin = aWebProgress.DOMWindow;
-
-    // Browser webapps may load content inside iframes that can not reach across the app/frame boundary
-    // i.e. even though the page is loaded in an iframe window.top != webapp
-    // Make cure this window is a top level tab before moving on.
-    if (BrowserApp.getBrowserForWindow(contentWin) == null)
-      return;
 
     this._hostChanged = true;
 

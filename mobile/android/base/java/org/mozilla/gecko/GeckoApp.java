@@ -43,8 +43,6 @@ import org.mozilla.gecko.util.NativeEventListener;
 import org.mozilla.gecko.util.NativeJSObject;
 import org.mozilla.gecko.util.PrefUtils;
 import org.mozilla.gecko.util.ThreadUtils;
-import org.mozilla.gecko.webapp.EventListener;
-import org.mozilla.gecko.webapp.UninstallListener;
 import org.mozilla.gecko.widget.ButtonToast;
 
 import android.annotation.SuppressLint;
@@ -144,7 +142,6 @@ public abstract class GeckoApp
         NORMAL,     /* normal application start */
         URL,        /* launched with a passed URL */
         PREFETCH,   /* launched with a passed URL that we prefetch */
-        WEBAPP,     /* launched as a webapp runtime */
         GUEST,      /* launched in guest browsing */
         RESTRICTED  /* launched with restricted profile */
     }
@@ -212,8 +209,6 @@ public abstract class GeckoApp
 
     private volatile HealthRecorder mHealthRecorder;
     private volatile Locale mLastLocale;
-
-    private EventListener mWebappEventListener;
 
     private Intent mRestartIntent;
 
@@ -690,9 +685,7 @@ public abstract class GeckoApp
     @Override
     public void handleMessage(String event, JSONObject message) {
         try {
-            if (event.equals("Gecko:DelayedStartup")) {
-                ThreadUtils.postToBackgroundThread(new UninstallListener.DelayedStartupTask(this));
-            } else if (event.equals("Gecko:Ready")) {
+            if (event.equals("Gecko:Ready")) {
                 mGeckoReadyStartupTimer.stop();
                 geckoConnected();
 
@@ -1297,11 +1290,6 @@ public abstract class GeckoApp
 
         EventDispatcher.getInstance().registerBackgroundThreadListener((BundleEventListener) this,
                 "History:GetPrePathLastVisitedTimeMilliseconds");
-
-        if (mWebappEventListener == null) {
-            mWebappEventListener = new EventListener();
-            mWebappEventListener.registerEvents();
-        }
 
         GeckoThread.launch();
 
@@ -2124,11 +2112,6 @@ public abstract class GeckoApp
         EventDispatcher.getInstance().unregisterBackgroundThreadListener((BundleEventListener) this,
                 "History:GetPrePathLastVisitedTimeMilliseconds");
 
-        if (mWebappEventListener != null) {
-            mWebappEventListener.unregisterEvents();
-            mWebappEventListener = null;
-        }
-
         deleteTempFiles();
 
         if (mDoorHangerPopup != null)
@@ -2665,10 +2648,7 @@ public abstract class GeckoApp
     }
 
     protected boolean getIsDebuggable() {
-        // Return false so Fennec doesn't appear to be debuggable.  WebappImpl
-        // then overrides this and returns the value of android:debuggable for
-        // the webapp APK, so webapps get the behavior supported by this method
-        // (i.e. automatic configuration and enabling of the remote debugger).
+        // Return false so Fennec doesn't appear to be debuggable.
         return false;
 
         // If we ever want to expose this for Fennec, here's how we would do it:

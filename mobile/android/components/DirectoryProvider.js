@@ -26,7 +26,6 @@ const NS_XPCOM_CURRENT_PROCESS_DIR = "XCurProcD";
 const XRE_APP_DISTRIBUTION_DIR = "XREAppDist";
 const XRE_UPDATE_ROOT_DIR     = "UpdRootD";
 const ENVVAR_UPDATE_DIR       = "UPDATES_DIRECTORY";
-const WEBAPPS_DIR             = "webappsDir";
 const DOWNLOAD_DIR            = "DfltDwnld";
 
 const SYSTEM_DIST_PATH = `/system/${AppConstants.ANDROID_PACKAGE_NAME}/distribution`;
@@ -44,13 +43,6 @@ DirectoryProvider.prototype = {
       let dirsvc = Cc["@mozilla.org/file/directory_service;1"].getService(Ci.nsIProperties);
       let profile = dirsvc.get("ProfD", Ci.nsIFile);
       return profile;
-    } else if (prop == WEBAPPS_DIR) {
-      // returns the folder that should hold the webapps database file
-      // For fennec we will store that in the root profile folder so that all
-      // webapps can easily access it
-      let dirsvc = Cc["@mozilla.org/file/directory_service;1"].getService(Ci.nsIProperties);
-      let profile = dirsvc.get("ProfD", Ci.nsIFile);
-      return profile.parent;
     } else if (prop == XRE_APP_DISTRIBUTION_DIR) {
       let distributionDirectories =  this._getDistributionDirectories();
       for (let i = 0; i < distributionDirectories.length; i++) {

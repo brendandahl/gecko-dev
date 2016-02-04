@@ -2846,9 +2846,4 @@ public class GeckoAppShell
         final Display disp = wm.getDefaultDisplay();
         return new Rect(0, 0, disp.getWidth(), disp.getHeight());
     }
-
-    @JNITarget
-    static boolean isWebAppProcess() {
-        return GeckoProfile.get(getApplicationContext()).isWebAppProfile();
-    }
 }

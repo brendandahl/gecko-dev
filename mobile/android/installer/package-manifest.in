@@ -358,10 +358,6 @@
 @BINPATH@/components/TelemetryStartup.manifest
 @BINPATH@/components/XULStore.js
 @BINPATH@/components/XULStore.manifest
-@BINPATH@/components/Webapps.js
-@BINPATH@/components/Webapps.manifest
-@BINPATH@/components/AppsService.js
-@BINPATH@/components/AppsService.manifest
 @BINPATH@/components/htmlMenuBuilder.js
 @BINPATH@/components/htmlMenuBuilder.manifest
 
@@ -566,7 +562,6 @@
 @BINPATH@/components/marionettecomponent.js
 #endif
 
-@BINPATH@/components/WebappsUpdateTimer.js
 @BINPATH@/components/DataStore.manifest
 @BINPATH@/components/DataStoreImpl.js
 @BINPATH@/components/dom_datastore.xpt

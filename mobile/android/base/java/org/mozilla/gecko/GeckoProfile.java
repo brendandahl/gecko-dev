@@ -81,7 +81,6 @@ public final class GeckoProfile {
 
     private final String mName;
     private final File mMozillaDir;
-    private final boolean mIsWebAppProfile;
     private final Context mApplicationContext;
 
     private final BrowserDB mDB;
@@ -455,7 +454,6 @@ public final class GeckoProfile {
 
         mApplicationContext = context.getApplicationContext();
         mName = profileName;
-        mIsWebAppProfile = profileName.startsWith("webapp");
         mMozillaDir = GeckoProfileDirectories.getMozillaDirectory(context);
 
         // This apes the behavior of setDir.
@@ -471,9 +469,6 @@ public final class GeckoProfile {
         return mDB;
     }
 
-    public boolean isWebAppProfile() {
-        return mIsWebAppProfile;
-    }
 
     // Warning, Changing the lock file state from outside apis will cause this to become out of sync
     public boolean locked() {
@@ -924,9 +919,8 @@ public final class GeckoProfile {
             parser.addSection(generalSection);
         }
 
-        if (!isDefaultSet && !mIsWebAppProfile) {
-            // only set as default if this is the first non-webapp
-            // profile we're creating
+        if (!isDefaultSet) {
+            // only set as default if this is the first profile we're creating
             profileSection.setProperty("Default", 1);
 
             // We have no intention of stopping this session. The FIRSTRUN session
@@ -938,10 +932,7 @@ public final class GeckoProfile {
         parser.addSection(profileSection);
         parser.write();
 
-        // Trigger init for non-webapp profiles.
-        if (!mIsWebAppProfile) {
-            enqueueInitialization(profileDir);
-        }
+        enqueueInitialization(profileDir);
 
         // Write out profile creation time, mirroring the logic in nsToolkitProfileService.
         try {
@@ -957,11 +948,9 @@ public final class GeckoProfile {
             Log.w(LOGTAG, "Couldn't write times.json.", e);
         }
 
-        // Initialize pref flag for displaying the start pane for a new non-webapp profile.
-        if (!mIsWebAppProfile) {
-            final SharedPreferences prefs = GeckoSharedPrefs.forProfile(mApplicationContext);
-            prefs.edit().putBoolean(FirstrunAnimationContainer.PREF_FIRSTRUN_ENABLED, true).apply();
-        }
+        // Initialize pref flag for displaying the start pane for a new profiles.
+        final SharedPreferences prefs = GeckoSharedPrefs.forProfile(mApplicationContext);
+        prefs.edit().putBoolean(FirstrunAnimationContainer.PREF_FIRSTRUN_ENABLED, true).apply();
 
         return profileDir;
     }
