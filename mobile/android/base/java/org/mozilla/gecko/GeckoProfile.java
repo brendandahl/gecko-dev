@@ -303,6 +303,8 @@ public final class GeckoProfile {
         }
     }
 
+    // Currently unused outside of testing.
+    @RobocopTarget
     public static boolean removeProfile(Context context, String profileName) {
         if (profileName == null) {
             Log.w(LOGTAG, "Unable to remove profile: null profile name.");
