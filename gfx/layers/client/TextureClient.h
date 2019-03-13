@@ -581,6 +581,16 @@ class TextureClient : public AtomicRefCountedWithFinalize<TextureClient> {
     return fence;
   }
 
+  virtual void SetAcquireFenceHandle(const FenceHandle& aAcquireFenceHandle)
+  {
+    mAcquireFenceHandle = aAcquireFenceHandle;
+  }
+
+  virtual const FenceHandle& GetAcquireFenceHandle() const
+  {
+    return mAcquireFenceHandle;
+  }
+
   /**
    * Track how much of this texture is wasted.
    * For example we might allocate a 256x256 tile but only use 10x10.
@@ -724,6 +734,7 @@ class TextureClient : public AtomicRefCountedWithFinalize<TextureClient> {
 
   TextureFlags mFlags;
   FenceHandle mReleaseFenceHandle;
+  FenceHandle mAcquireFenceHandle;
 
   gl::GfxTextureWasteTracker mWasteTracker;
 
