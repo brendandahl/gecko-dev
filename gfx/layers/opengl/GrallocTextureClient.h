@@ -74,9 +74,10 @@ public:
   TextureClientFromSharedSurface(gl::SharedSurface* abstractSurf, TextureFlags flags);
 
   virtual TextureData*
-  CreateSimilar(LayersIPCChannel* aAllocator,
-                TextureFlags aFlags = TextureFlags::DEFAULT,
-                TextureAllocationFlags aAllocFlags = ALLOC_DEFAULT) const override;
+  CreateSimilar(
+      LayersIPCChannel* aAllocator, LayersBackend aLayersBackend,
+      TextureFlags aFlags = TextureFlags::DEFAULT,
+      TextureAllocationFlags aAllocFlags = ALLOC_DEFAULT) const override;
 
   // use TextureClient's default implementation
   virtual bool UpdateFromSurface(gfx::SourceSurface* aSurface) override;
