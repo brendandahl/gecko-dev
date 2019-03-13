@@ -155,6 +155,7 @@ class PlanarYCbCrImage;
 class TextureClient;
 class KnowsCompositor;
 class NVImage;
+class GrallocImage;
 #ifdef XP_WIN
 class D3D11YCbCrRecycleAllocator;
 #endif
@@ -238,6 +239,8 @@ class Image {
   virtual PlanarYCbCrImage* AsPlanarYCbCrImage() { return nullptr; }
 
   virtual NVImage* AsNVImage() { return nullptr; }
+
+  virtual GrallocImage* AsGrallocImage() { return nullptr; }
 
  protected:
   Image(void* aImplData, ImageFormat aFormat)
