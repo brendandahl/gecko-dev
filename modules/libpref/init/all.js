@@ -5320,6 +5320,11 @@ pref("layout.css.touch_action.enabled", true);
 // window to be collected via the GC/CC.
 pref("memory.ghost_window_timeout_seconds", 60);
 
+// Disable the Linux-specific, system-wide memory reporter.
+#ifdef XP_LINUX
+pref("memory.system_memory_reporter", false);
+#endif
+
 // Don't dump memory reports on OOM, by default.
 pref("memory.dump_reports_on_oom", false);
 

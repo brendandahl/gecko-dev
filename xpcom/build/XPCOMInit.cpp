@@ -89,6 +89,7 @@
 #include "mozilla/AvailableMemoryTracker.h"
 #include "mozilla/ClearOnShutdown.h"
 #include "mozilla/CountingAllocatorBase.h"
+#include "mozilla/SystemMemoryReporter.h"
 #include "mozilla/UniquePtr.h"
 
 #include "mozilla/ipc/GeckoChildProcessHost.h"
@@ -497,6 +498,13 @@ NS_InitXPCOM2(nsIServiceManager** aResult, nsIFile* aBinDirectory,
 #ifdef XP_WIN
   CreateAnonTempFileRemover();
 #endif
+
+  // We only want the SystemMemoryReporter running in one process, because it
+  // profiles the entire system.  The main process is the obvious place for
+  // it.
+  if (XRE_IsParentProcess()) {
+    mozilla::SystemMemoryReporter::Init();
+  }
 
   // The memory reporter manager is up and running -- register our reporters.
   RegisterStrongMemoryReporter(new ICUReporter());
