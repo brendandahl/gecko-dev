@@ -20,6 +20,7 @@
 #include "mozilla/layers/CompositorTypes.h"  // for DiagnosticTypes, etc
 #include "mozilla/layers/LayersTypes.h"      // for LayersBackend
 #include "mozilla/layers/TextureSourceProvider.h"
+#include "mozilla/layers/FenceUtils.h"  // for FenceHandle
 #include "mozilla/widget/CompositorWidget.h"
 #include "nsISupportsImpl.h"  // for MOZ_COUNT_CTOR, etc
 #include "nsRegion.h"
@@ -440,6 +441,17 @@ class Compositor : public TextureSourceProvider {
   virtual void EndFrame();
 
   virtual void CancelFrame(bool aNeedFlush = true) { ReadUnlockTextures(); }
+
+  virtual void SetDispAcquireFence(Layer* aLayer);
+
+  virtual FenceHandle GetReleaseFence();
+
+  /**
+   * Post-rendering stuff if the rendering is done outside of this Compositor
+   * e.g., by Composer2D.
+   * aTransform is the transform from user space to window space.
+   */
+  virtual void EndFrameForExternalComposition(const gfx::Matrix& aTransform) = 0;
 
   /**
    * Whether textures created by this compositor can receive partial updates.

@@ -548,5 +548,11 @@ void Compositor::GetFrameStats(GPUStats* aStats) {
   aStats->mPixelsFilled = mPixelsFilled;
 }
 
-}  // namespace layers
-}  // namespace mozilla
+FenceHandle
+Compositor::GetReleaseFence()
+{
+  return FenceHandle();
+}
+
+} // namespace layers
+} // namespace mozilla
