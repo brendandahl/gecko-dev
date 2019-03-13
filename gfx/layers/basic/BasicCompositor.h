@@ -122,6 +122,7 @@ class BasicCompositor : public Compositor {
                           gfx::IntRect* aClipRectOut = nullptr,
                           gfx::IntRect* aRenderBoundsOut = nullptr) override;
   virtual void EndFrame() override;
+  virtual void EndFrameForExternalComposition(const gfx::Matrix& aTransform) override;
 
   virtual bool SupportsPartialTextureUpdate() override { return true; }
   virtual bool CanUseCanvasLayerForSize(const gfx::IntSize& aSize) override {

@@ -1124,5 +1124,16 @@ void BasicCompositor::FinishPendingComposite() {
   TryToEndRemoteDrawing(/* aForceToEnd */ true);
 }
 
+void
+BasicCompositor::EndFrameForExternalComposition(const gfx::Matrix& aTransform)
+{
+  MOZ_ASSERT(!mTarget);
+  MOZ_ASSERT(!mDrawTarget);
+  MOZ_ASSERT(!mRenderTarget);
+
+  mDidExternalComposition = true;
+}
+
+
 }  // namespace layers
 }  // namespace mozilla

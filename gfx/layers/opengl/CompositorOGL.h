@@ -184,6 +184,7 @@ class CompositorOGL final : public Compositor {
   virtual bool SupportsLayerGeometry() const override;
 
   virtual void EndFrame() override;
+  virtual void EndFrameForExternalComposition(const gfx::Matrix& aTransform) override;
 
   virtual bool SupportsPartialTextureUpdate() override;
 

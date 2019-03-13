@@ -1758,6 +1758,15 @@ void CompositorOGL::EndFrame() {
   Compositor::EndFrame();
 }
 
+void
+CompositorOGL::EndFrameForExternalComposition(const gfx::Matrix& aTransform)
+{
+  MOZ_ASSERT(!mTarget);
+  if (mTexturePool) {
+    mTexturePool->EndFrame();
+  }
+}
+
 void CompositorOGL::SetDestinationSurfaceSize(const IntSize& aSize) {
   mSurfaceSize.width = aSize.width;
   mSurfaceSize.height = aSize.height;
