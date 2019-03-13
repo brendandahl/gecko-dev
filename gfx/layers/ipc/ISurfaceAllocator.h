@@ -143,6 +143,8 @@ class HostIPCAllocator : public ISurfaceAllocator {
   virtual void SendAsyncMessage(
       const InfallibleTArray<AsyncParentMessageData>& aMessage) = 0;
 
+  void SendFenceHandleIfPresent(PTextureParent* aTexture);
+
   virtual void SendPendingAsyncMessages();
 
   virtual void SetAboutToSendAsyncMessages() {

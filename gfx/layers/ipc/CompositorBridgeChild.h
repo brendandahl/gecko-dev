@@ -175,6 +175,8 @@ class CompositorBridgeChild final : public PCompositorBridgeChild,
    */
   void NotifyNotUsed(uint64_t aTextureId, uint64_t aFwdTransactionId);
 
+  void DeliverFence(uint64_t aTextureId, FenceHandle& aReleaseFenceHandle);
+
   virtual void CancelWaitForRecycle(uint64_t aTextureId) override;
 
   TextureClientPool* GetTexturePool(KnowsCompositor* aAllocator,

@@ -125,6 +125,8 @@ class VRManagerChild : public PVRManagerChild {
   void NotifyPresentationGenerationChangedInternal(uint32_t aDisplayID);
 
   nsTArray<RefPtr<VRDisplayClient>> mDisplays;
+  void DeliverFence(uint64_t aTextureId, FenceHandle& aReleaseFenceHandle);
+
   bool mDisplaysInitialized;
   nsTArray<uint64_t> mNavigatorCallbacks;
 

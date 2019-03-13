@@ -781,6 +781,12 @@ mozilla::ipc::IPCResult CompositorBridgeChild::RecvParentAsyncMessages(
     const AsyncParentMessageData& message = aMessages[i];
 
     switch (message.type()) {
+      case AsyncParentMessageData::TOpDeliverFence: {
+        const OpDeliverFence& op = message.get_OpDeliverFence();
+        FenceHandle fence = op.fence();
+        DeliverFence(op.TextureId(), fence);
+        break;
+      }
       case AsyncParentMessageData::TOpNotifyNotUsed: {
         const OpNotifyNotUsed& op = message.get_OpNotifyNotUsed();
         NotifyNotUsed(op.TextureId(), op.fwdTransactionId());
@@ -851,7 +857,20 @@ void CompositorBridgeChild::NotifyNotUsed(uint64_t aTextureId,
   }
 }
 
-void CompositorBridgeChild::CancelWaitForRecycle(uint64_t aTextureId) {
+void
+CompositorBridgeChild::DeliverFence(uint64_t aTextureId, FenceHandle& aReleaseFenceHandle)
+{
+  RefPtr<TextureClient> client = mTexturesWaitingRecycled.Get(aTextureId);
+  if (!client) {
+    return;
+  }
+  client->SetReleaseFenceHandle(aReleaseFenceHandle);
+}
+
+void
+CompositorBridgeChild::CancelWaitForRecycle(uint64_t aTextureId)
+{
+  // TODO revist with someone from gfx
   mTexturesWaitingRecycled.erase(aTextureId);
 }
 

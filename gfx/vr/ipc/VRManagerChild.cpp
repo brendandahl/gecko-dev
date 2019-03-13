@@ -270,6 +270,67 @@ void VRManagerChild::CreateVRServiceTestController(const nsCString& aID,
   ++mPromiseID;
 }
 
+int
+VRManagerChild::GetInputFrameID()
+{
+  return mInputFrameID;
+}
+
+bool
+VRManagerChild::RecvParentAsyncMessages(InfallibleTArray<AsyncParentMessageData>&& aMessages)
+{
+  for (InfallibleTArray<AsyncParentMessageData>::index_type i = 0; i < aMessages.Length(); ++i) {
+    const AsyncParentMessageData& message = aMessages[i];
+
+    switch (message.type()) {
+      case AsyncParentMessageData::TOpDeliverFence: {
+        const OpDeliverFence& op = message.get_OpDeliverFence();
+        FenceHandle fence = op.fence();
+        DeliverFence(op.TextureId(), fence);
+        break;
+      }
+      case AsyncParentMessageData::TOpNotifyNotUsed: {
+        const OpNotifyNotUsed& op = message.get_OpNotifyNotUsed();
+        NotifyNotUsed(op.TextureId(), op.fwdTransactionId());
+        break;
+      }
+      default:
+        NS_ERROR("unknown AsyncParentMessageData type");
+        return false;
+    }
+  }
+  return true;
+}
+
+PTextureChild*
+VRManagerChild::CreateTexture(const SurfaceDescriptor& aSharedData,
+                              LayersBackend aLayersBackend,
+                              TextureFlags aFlags,
+                              uint64_t aSerial)
+{
+  return SendPTextureConstructor(aSharedData, aLayersBackend, aFlags, aSerial);
+}
+
+void
+VRManagerChild::DeliverFence(uint64_t aTextureId, FenceHandle& aReleaseFenceHandle)
+{
+  RefPtr<TextureClient> client = mTexturesWaitingRecycled.Get(aTextureId);
+  if (!client) {
+    return;
+  }
+  client->SetReleaseFenceHandle(aReleaseFenceHandle);
+}
+
+void
+VRManagerChild::CancelWaitForRecycle(uint64_t aTextureId)
+{
+  RefPtr<TextureClient> client = mTexturesWaitingRecycled.Get(aTextureId);
+  if (!client) {
+    return;
+  }
+  mTexturesWaitingRecycled.Remove(aTextureId);
+}
+
 PVRLayerChild* VRManagerChild::CreateVRLayer(uint32_t aDisplayID,
                                              nsIEventTarget* aTarget,
                                              uint32_t aGroup) {
