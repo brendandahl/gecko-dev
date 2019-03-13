@@ -427,6 +427,7 @@ class ImageBridgeChild final : public PImageBridgeChild,
    * Used for checking if D3D11Device is updated.
    */
   RefPtr<ID3D11Device> mImageDevice;
+#endif
 
   AsyncTransactionTrackersHolder mTrackersHolder;
 
