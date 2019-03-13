@@ -50,7 +50,7 @@ SharedSurface_Gralloc::Create(GLContext* prodGL,
                               layers::TextureFlags flags,
                               LayersIPCChannel* allocator)
 {
-    GLLibraryEGL* egl = &sEGLLibrary;
+    GLLibraryEGL* egl = gl::GLLibraryEGL::Get();
     MOZ_ASSERT(egl);
 
     UniquePtr<SharedSurface_Gralloc> ret;

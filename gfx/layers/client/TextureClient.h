@@ -46,6 +46,10 @@ namespace mozilla {
 #  define GFX_DEBUG_TRACK_CLIENTS_IN_POOL 1
 #endif
 
+namespace gl {
+class SharedSurface_Gralloc;
+}
+
 namespace layers {
 
 class AsyncTransactionWaiter;
@@ -294,8 +298,6 @@ class TextureData {
   /// Ideally this should not be exposed and users of TextureClient would use Lock/Unlock
   /// preoperly but that requires a few changes to SharedSurface and maybe gonk video.
   virtual void WaitForFence(FenceHandle* aFence) {};
-
-  virtual void SyncWithObject(SyncObject* aFence) {};
 
   virtual TextureFlags GetTextureFlags() const {
     return TextureFlags::NO_FLAGS;
@@ -717,6 +719,7 @@ class TextureClient : public AtomicRefCountedWithFinalize<TextureClient> {
   void Finalize() {}
 
   friend class AtomicRefCountedWithFinalize<TextureClient>;
+  friend class gl::SharedSurface_Gralloc;
 
  protected:
   /**
