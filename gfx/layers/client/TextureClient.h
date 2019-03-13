@@ -254,7 +254,7 @@ class TextureData {
 
   virtual void FillInfo(TextureData::Info& aInfo) const = 0;
 
-  virtual bool Lock(OpenMode aMode) = 0;
+  virtual bool Lock(OpenMode aMode, FenceHandle* aFence) = 0;
 
   virtual void Unlock() = 0;
 
@@ -569,6 +569,18 @@ class TextureClient : public AtomicRefCountedWithFinalize<TextureClient> {
    */
   void Destroy();
 
+  virtual void SetReleaseFenceHandle(const FenceHandle& aReleaseFenceHandle)
+  {
+    mReleaseFenceHandle.Merge(aReleaseFenceHandle);
+  }
+
+  virtual FenceHandle GetAndResetReleaseFenceHandle()
+  {
+    FenceHandle fence;
+    mReleaseFenceHandle.TransferToAnotherFenceHandle(fence);
+    return fence;
+  }
+
   /**
    * Track how much of this texture is wasted.
    * For example we might allocate a 256x256 tile but only use 10x10.
@@ -711,6 +723,7 @@ class TextureClient : public AtomicRefCountedWithFinalize<TextureClient> {
   RefPtr<gfx::DrawTarget> mBorrowedDrawTarget;
 
   TextureFlags mFlags;
+  FenceHandle mReleaseFenceHandle;
 
   gl::GfxTextureWasteTracker mWasteTracker;
 

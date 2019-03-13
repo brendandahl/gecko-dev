@@ -36,7 +36,7 @@ class BufferTextureData : public TextureData {
       gfx::ColorDepth aColorDepth, YUVColorSpace aYUVColorSpace,
       TextureFlags aTextureFlags);
 
-  virtual bool Lock(OpenMode aMode) override { return true; }
+  virtual bool Lock(OpenMode aMode, FenceHandle*) override { return true; }
 
   virtual void Unlock() override {}
 

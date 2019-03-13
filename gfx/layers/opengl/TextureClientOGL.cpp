@@ -151,7 +151,7 @@ bool AndroidNativeWindowTextureData::Serialize(
   return true;
 }
 
-bool AndroidNativeWindowTextureData::Lock(OpenMode) {
+bool AndroidNativeWindowTextureData::Lock(OpenMode, FenceHandle*) {
   // ANativeWindows can only be locked and unlocked a single time, after which
   // we must wait until they receive ownership back from the host.
   // Therefore we must only actually call ANativeWindow_lock() once per cycle.

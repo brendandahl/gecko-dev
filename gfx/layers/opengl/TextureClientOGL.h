@@ -47,8 +47,7 @@ class AndroidSurfaceTextureData : public TextureData {
 
   virtual bool Serialize(SurfaceDescriptor& aOutDescriptor) override;
 
-  // Useless functions.
-  virtual bool Lock(OpenMode) override { return true; }
+  virtual bool Lock(OpenMode, FenceHandle*) override { return true; }
 
   virtual void Unlock() override {}
 
@@ -73,7 +72,7 @@ class AndroidNativeWindowTextureData : public TextureData {
 
   virtual bool Serialize(SurfaceDescriptor& aOutDescriptor) override;
 
-  virtual bool Lock(OpenMode) override;
+  virtual bool Lock(OpenMode, FenceHandle*) override;
   virtual void Unlock() override;
 
   virtual void Forget(LayersIPCChannel*) override;

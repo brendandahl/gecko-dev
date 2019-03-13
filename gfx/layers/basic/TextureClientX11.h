@@ -22,7 +22,7 @@ class X11TextureData : public TextureData {
 
   virtual bool Serialize(SurfaceDescriptor& aOutDescriptor) override;
 
-  virtual bool Lock(OpenMode aMode) override;
+  virtual bool Lock(OpenMode aMode, FenceHandle*) override;
 
   virtual void Unlock() override;
 

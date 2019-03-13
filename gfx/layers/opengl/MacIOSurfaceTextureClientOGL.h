@@ -27,7 +27,7 @@ class MacIOSurfaceTextureData : public TextureData {
 
   virtual void FillInfo(TextureData::Info& aInfo) const override;
 
-  virtual bool Lock(OpenMode) override;
+  virtual bool Lock(OpenMode, FenceHandle*) override;
 
   virtual void Unlock() override;
 

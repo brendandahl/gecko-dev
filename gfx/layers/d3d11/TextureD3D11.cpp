@@ -309,7 +309,9 @@ D3D11TextureData::~D3D11TextureData() {
   }
 }
 
-bool D3D11TextureData::Lock(OpenMode aMode) {
+bool
+D3D11TextureData::Lock(OpenMode aMode, FenceHandle*)
+{
   if (!LockD3DTexture(mTexture.get())) {
     return false;
   }

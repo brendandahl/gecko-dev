@@ -85,7 +85,7 @@ class D3D11TextureData : public DXGITextureData {
 
   virtual bool UpdateFromSurface(gfx::SourceSurface* aSurface) override;
 
-  virtual bool Lock(OpenMode aMode) override;
+  virtual bool Lock(OpenMode aMode, FenceHandle*) override;
 
   virtual void Unlock() override;
 
@@ -95,6 +95,7 @@ class D3D11TextureData : public DXGITextureData {
       LayersIPCChannel* aAllocator, LayersBackend aLayersBackend,
       TextureFlags aFlags, TextureAllocationFlags aAllocFlags) const override;
 
+  // TODO - merge this with the FenceHandle API!
   virtual void SyncWithObject(SyncObjectClient* aSyncObject) override;
 
   ID3D11Texture2D* GetD3D11Texture() { return mTexture; }
@@ -142,7 +143,7 @@ class DXGIYCbCrTextureData : public TextureData {
       const gfx::IntSize& aSizeY, const gfx::IntSize& aSizeCbCr,
       gfx::ColorDepth aColorDepth, YUVColorSpace aYUVColorSpace);
 
-  virtual bool Lock(OpenMode) override { return true; }
+  virtual bool Lock(OpenMode, FenceHandle*) override { return true; }
 
   virtual void Unlock() override {}
 

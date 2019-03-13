@@ -33,7 +33,11 @@ X11TextureData::X11TextureData(gfx::IntSize aSize, gfx::SurfaceFormat aFormat,
   MOZ_ASSERT(mSurface);
 }
 
-bool X11TextureData::Lock(OpenMode aMode) { return true; }
+bool
+X11TextureData::Lock(OpenMode aMode, FenceHandle*)
+{
+  return true;
+}
 
 void X11TextureData::Unlock() {
   if (mSurface && mIsCrossProcess) {
