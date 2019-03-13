@@ -5,10 +5,11 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 #include "CompositableForwarder.h"
-#include "mozilla/layers/CompositableChild.h"
 
 namespace mozilla {
 namespace layers {
+
+/// ZZZZZZZZZZZZZ is any of this needed?
 
 void
 CompositableForwarder::Destroy(CompositableChild* aCompositable)
