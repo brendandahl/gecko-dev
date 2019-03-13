@@ -642,6 +642,7 @@ class gfxPrefs final {
   DECL_GFX_PREF(Once, "layers.gpu-process.force-enabled",      GPUProcessForceEnabled, bool, false);
   DECL_GFX_PREF(Once, "layers.gpu-process.ipc_reply_timeout_ms", GPUProcessIPCReplyTimeoutMs, int32_t, 10000);
   DECL_GFX_PREF(Live, "layers.gpu-process.max_restarts",       GPUProcessMaxRestarts, int32_t, 1);
+  DECL_GFX_PREF(Once, "layers.gralloc.disable",                DisableGralloc, bool, false);
   // Note: This pref will only be used if it is less than layers.gpu-process.max_restarts.
   DECL_GFX_PREF(Live, "layers.gpu-process.max_restarts_with_decoder", GPUProcessMaxRestartsWithDecoder, int32_t, 0);
   DECL_GFX_PREF(Once, "layers.gpu-process.startup_timeout_ms", GPUProcessTimeoutMs, int32_t, 5000);
