@@ -15,6 +15,7 @@
 #include "mozilla/Atomics.h"
 #include "mozilla/RefPtr.h"            // for already_AddRefed
 #include "mozilla/ipc/SharedMemory.h"  // for SharedMemory, etc
+#include "mozilla/layers/AsyncTransactionTracker.h" // for AsyncTransactionTrackerHolder
 #include "mozilla/layers/CanvasClient.h"
 #include "mozilla/layers/CompositableForwarder.h"
 #include "mozilla/layers/CompositorTypes.h"
@@ -40,6 +41,7 @@ class Shmem;
 namespace layers {
 
 class AsyncCanvasRenderer;
+class AsyncTransactionTracker;
 class ImageClient;
 class ImageContainer;
 class ImageContainerListener;
@@ -244,8 +246,11 @@ class ImageBridgeChild final : public PImageBridgeChild,
   void UpdateAsyncCanvasRendererSync(SynchronousTask* aTask,
                                      AsyncCanvasRenderer* aWrapper);
 
-  void FlushAllImagesSync(SynchronousTask* aTask, ImageClient* aClient,
-                          ImageContainer* aContainer);
+  void FlushAllImagesSync(
+    SynchronousTask* aTask,
+    ImageClient* aClient,
+    ImageContainer* aContainer,
+    RefPtr<AsyncTransactionWaiter> aWaiter);
 
   void ProxyAllocShmemNow(SynchronousTask* aTask, AllocShmemParams* aParams);
   void ProxyDeallocShmemNow(SynchronousTask* aTask, Shmem* aShmem,
@@ -312,6 +317,10 @@ class ImageBridgeChild final : public PImageBridgeChild,
       const SurfaceDescriptorTiles& aTileLayerDescriptor) override {
     MOZ_CRASH("should not be called");
   }
+
+  virtual void RemoveTextureFromCompositableAsync(AsyncTransactionTracker* aAsyncTransactionTracker,
+                                                  CompositableClient* aCompositable,
+                                                  TextureClient* aTexture) override;
 
   virtual void UpdateTextureRegion(CompositableClient* aCompositable,
                                    const ThebesBufferData& aThebesBufferData,
@@ -418,7 +427,9 @@ class ImageBridgeChild final : public PImageBridgeChild,
    * Used for checking if D3D11Device is updated.
    */
   RefPtr<ID3D11Device> mImageDevice;
-#endif
+
+  AsyncTransactionTrackersHolder mTrackersHolder;
+
 };
 
 }  // namespace layers

@@ -440,7 +440,7 @@ void ShadowLayerForwarder::UseTextures(
   mTxn->AddEdit(CompositableOperation(aCompositable->GetIPCHandle(),
                                       OpUseTexture(textures)));
 }
-
+<
 void ShadowLayerForwarder::UseComponentAlphaTextures(
     CompositableClient* aCompositable, TextureClient* aTextureOnBlack,
     TextureClient* aTextureOnWhite) {
@@ -515,6 +515,14 @@ bool ShadowLayerForwarder::InWorkerThread() {
   return MessageLoop::current() &&
          (GetTextureForwarder()->GetMessageLoop()->id() ==
           MessageLoop::current()->id());
+}
+
+void
+ShadowLayerForwarder::RemoveTextureFromCompositableAsync(AsyncTransactionTracker* aAsyncTransactionTracker,
+                                                         CompositableClient* aCompositable,
+                                                         TextureClient* aTexture)
+{
+  NS_RUNTIMEABORT("not reached");
 }
 
 void ShadowLayerForwarder::StorePluginWidgetConfigurations(

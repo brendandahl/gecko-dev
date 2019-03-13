@@ -10,6 +10,7 @@
 #include <vector>                // for vector
 #include "mozilla/Attributes.h"  // for override
 #include "mozilla/NotNull.h"
+#include "mozilla/layers/AsyncTransactionTracker.h" // for AsyncTransactionTracker
 #include "mozilla/layers/ISurfaceAllocator.h"  // for ISurfaceAllocator
 #include "mozilla/layers/LayersMessages.h"     // for EditReply, etc
 #include "mozilla/layers/TextureClient.h"
@@ -49,6 +50,8 @@ class CompositableParentManager : public HostIPCAllocator {
                                  NotNull<CompositableHost*> aCompositable);
 
   void ReleaseCompositable(const CompositableHandle& aHandle);
+
+  virtual void ReplyRemoveTexture(const OpReplyRemoveTexture& aReply) {};
 
   uint64_t mFwdTransactionId = 0;
 

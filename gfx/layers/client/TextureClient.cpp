@@ -12,6 +12,7 @@
 #include "mozilla/Atomics.h"
 #include "mozilla/SystemGroup.h"
 #include "mozilla/ipc/SharedMemory.h"  // for SharedMemory, etc
+#include "mozilla/layers/AsyncTransactionTracker.h"
 #include "mozilla/layers/CompositableForwarder.h"
 #include "mozilla/layers/ISurfaceAllocator.h"
 #include "mozilla/layers/ImageBridgeChild.h"
@@ -494,6 +495,10 @@ bool TextureClient::Lock(OpenMode aMode) {
     return mOpenMode == aMode;
   }
 
+  if (!!mFenceHandleWaiter && (aMode & OpenMode::OPEN_WRITE)) {
+    mFenceHandleWaiter->WaitComplete();
+  }
+
   if ((aMode & OpenMode::OPEN_WRITE || !mInfo.canConcurrentlyReadLock) &&
       !TryReadLock()) {
     // Only warn if attempting to write. Attempting to read is acceptable usage.
@@ -713,6 +718,14 @@ bool TextureClient::ToSurfaceDescriptor(SurfaceDescriptor& aOutDescriptor) {
   return mData ? mData->Serialize(aOutDescriptor) : false;
 }
 
+void
+TextureClient::WaitForBufferOwnership(bool aWaitReleaseFence)
+{
+  if (mFenceHandleWaiter) {
+    mFenceHandleWaiter->WaitComplete();
+  }
+}
+
 // static
 PTextureChild* TextureClient::CreateIPDLActor() {
   TextureChild* c = new TextureChild();
@@ -793,6 +806,37 @@ void TextureClient::SetAddedToCompositableClient() {
     }
     UnlockActor();
   }
+}
+
+void
+TextureClient::WaitFenceHandleOnImageBridge(Mutex& aMutex)
+{
+  MOZ_ASSERT(NS_IsMainThread());
+  aMutex.AssertCurrentThreadOwns();
+
+  if (!mFenceHandleWaiter) {
+    mFenceHandleWaiter = new AsyncTransactionWaiter();
+  }
+  MOZ_ASSERT(mFenceHandleWaiter->GetWaitCount() <= 1);
+  if (mFenceHandleWaiter->GetWaitCount() > 0) {
+    return;
+  }
+  mFenceHandleWaiter->IncrementWaitCount();
+}
+
+void
+TextureClient::ClearWaitFenceHandleOnImageBridge(Mutex& aMutex)
+{
+  aMutex.AssertCurrentThreadOwns();
+
+  if (!mFenceHandleWaiter) {
+    return;
+  }
+  MOZ_ASSERT(mFenceHandleWaiter->GetWaitCount() <= 1);
+  if (mFenceHandleWaiter->GetWaitCount() == 0) {
+    return;
+  }
+  mFenceHandleWaiter->DecrementWaitCount();
 }
 
 void

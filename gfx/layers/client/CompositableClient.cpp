@@ -34,6 +34,22 @@ void CompositableClient::InitIPDL(const CompositableHandle& aHandle) {
   mIsAsync = !NS_IsMainThread();
 }
 
+void
+RemoveTextureFromCompositableTracker::ReleaseTextureClient()
+{
+  if (mTextureClient &&
+      mTextureClient->GetAllocator() &&
+      !mTextureClient->GetAllocator()->UsesImageBridge())
+  {
+    RefPtr<TextureClientReleaseTask> task = new TextureClientReleaseTask(mTextureClient);
+    RefPtr<LayersIPCChannel> allocator = mTextureClient->GetAllocator();
+    mTextureClient = nullptr;
+    allocator->GetMessageLoop()->PostTask(task.forget());
+  } else {
+    mTextureClient = nullptr;
+  }
+}
+
 CompositableClient::CompositableClient(CompositableForwarder* aForwarder,
                                        TextureFlags aTextureFlags)
     : mForwarder(aForwarder), mTextureFlags(aTextureFlags), mIsAsync(false) {}

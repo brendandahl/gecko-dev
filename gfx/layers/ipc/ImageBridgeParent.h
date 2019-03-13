@@ -116,6 +116,8 @@ class ImageBridgeParent final : public PImageBridgeParent,
 
   static already_AddRefed<ImageBridgeParent> GetInstance(ProcessId aId);
 
+  virtual void ReplyRemoveTexture(const OpReplyRemoveTexture& aReply) override;
+
   void SendFenceHandleToNonRecycle(PTextureParent* aTexture);
 
   void NotifyNotUsedToNonRecycle(PTextureParent* aTexture,

@@ -64,7 +64,24 @@ already_AddRefed<ImageClient> ImageClient::CreateImageClient(
   return result.forget();
 }
 
-void ImageClient::RemoveTexture(TextureClient* aTexture) {
+void
+ImageClient::RemoveTexture(TextureClient* aTexture)
+{
+  RemoveTextureWithWaiter(aTexture);
+}
+
+void
+ImageClient::RemoveTextureWithWaiter(TextureClient* aTexture,
+                                     AsyncTransactionWaiter* aAsyncTransactionWaiter)
+{
+  if (aAsyncTransactionWaiter &&
+      GetForwarder()->GetTextureForwarder()->UsesImageBridge()) {
+    RefPtr<AsyncTransactionTracker> request =
+      new RemoveTextureFromCompositableTracker(aAsyncTransactionWaiter);
+    GetForwarder()->RemoveTextureFromCompositableAsync(request, this, aTexture);
+    return;
+  }
+  MOZ_ASSERT(!aAsyncTransactionWaiter);
   GetForwarder()->RemoveTextureFromCompositable(this, aTexture);
 }
 
@@ -77,9 +94,13 @@ TextureInfo ImageClientSingle::GetTextureInfo() const {
   return TextureInfo(CompositableType::IMAGE);
 }
 
-void ImageClientSingle::FlushAllImages() {
+void
+ImageClientSingle::FlushAllImages(AsyncTransactionWaiter* aAsyncTransactionWaiter)
+{
+  MOZ_ASSERT(GetForwarder()->GetTextureForwarder()->UsesImageBridge());
+
   for (auto& b : mBuffers) {
-    RemoveTexture(b.mTextureClient);
+    RemoveTextureWithWaiter(b.mTextureClient, aAsyncTransactionWaiter);
   }
   mBuffers.Clear();
 }

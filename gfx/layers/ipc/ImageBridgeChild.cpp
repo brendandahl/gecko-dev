@@ -302,6 +302,7 @@ ImageBridgeChild::~ImageBridgeChild() { delete mTxn; }
 
 void ImageBridgeChild::MarkShutDown() {
   mTexturesWaitingRecycled.clear();
+  mTrackersHolder.DestroyAsyncTransactionTrackersHolder();
 
   mCanSend = false;
 }
@@ -419,9 +420,14 @@ void ImageBridgeChild::UpdateAsyncCanvasRendererNow(
   EndTransaction();
 }
 
-void ImageBridgeChild::FlushAllImagesSync(SynchronousTask* aTask,
-                                          ImageClient* aClient,
-                                          ImageContainer* aContainer) {
+void
+ImageBridgeChild::FlushAllImagesSync(SynchronousTask* aTask,
+                                     ImageClient* aClient,
+                                     ImageContainer* aContainer,
+                                     RefPtr<AsyncTransactionWaiter> aWaiter)
+{
+  MOZ_ASSERT(!aWaiter);
+
   AutoCompleteTask complete(aTask);
 
   if (!CanSend()) {
@@ -433,7 +439,7 @@ void ImageBridgeChild::FlushAllImagesSync(SynchronousTask* aTask,
   if (aContainer) {
     aContainer->ClearImagesFromImageBridge();
   }
-  aClient->FlushAllImages();
+  aClient->FlushAllImages(aWaiter);
   EndTransaction();
 }
 
@@ -450,10 +456,16 @@ void ImageBridgeChild::FlushAllImages(ImageClient* aClient,
 
   SynchronousTask task("FlushAllImages Lock");
 
+  RefPtr<AsyncTransactionWaiter> waiter;
+
   // RefPtrs on arguments are not needed since this dispatches synchronously.
   RefPtr<Runnable> runnable = WrapRunnable(
-      RefPtr<ImageBridgeChild>(this), &ImageBridgeChild::FlushAllImagesSync,
-      &task, aClient, aContainer);
+    RefPtr<ImageBridgeChild>(this),
+    &ImageBridgeChild::FlushAllImagesSync,
+    &task,
+    aClient,
+    aContainer,
+    waiter);
   GetMessageLoop()->PostTask(runnable.forget());
 
   task.Wait();
@@ -956,6 +968,13 @@ mozilla::ipc::IPCResult ImageBridgeChild::RecvParentAsyncMessages(
         NotifyNotUsedToNonRecycle(op.TextureId(), op.fwdTransactionId());
         break;
       }
+      case AsyncParentMessageData::TOpReplyRemoveTexture: {
+        const OpReplyRemoveTexture& op = message.get_OpReplyRemoveTexture();
+
+        MOZ_ASSERT(mTrackersHolder.GetId() == op.holderId());
+        mTrackersHolder.TransactionCompleteted(op.transactionId());
+        break;
+      }
       default:
         NS_ERROR("unknown AsyncParentMessageData type");
         return IPC_FAIL_NO_REASON(this);
@@ -1041,6 +1060,32 @@ void ImageBridgeChild::RemoveTextureFromCompositable(
 
 bool ImageBridgeChild::IsSameProcess() const {
   return OtherPid() == base::GetCurrentProcId();
+}
+
+void
+ImageBridgeChild::RemoveTextureFromCompositableAsync(AsyncTransactionTracker* aAsyncTransactionTracker,
+                                                     CompositableClient* aCompositable,
+                                                     TextureClient* aTexture)
+{
+  MOZ_ASSERT(CanSend());
+  MOZ_ASSERT(aTexture);
+  MOZ_ASSERT(aTexture->IsSharedWithCompositor());
+  MOZ_ASSERT(aCompositable->IsConnected());
+  if (!aTexture || !aTexture->IsSharedWithCompositor() || !aCompositable->IsConnected()) {
+    return;
+  }
+
+  CompositableOperation op(
+    nullptr, aCompositable->GetIPDLActor(),
+    OpRemoveTextureAsync(
+      mTrackersHolder.GetId(),
+      aAsyncTransactionTracker->GetId(),
+      nullptr, aCompositable->GetIPDLActor(),
+      nullptr, aTexture->GetIPDLActor()));
+
+  mTxn->AddNoSwapEdit(op);
+  // Hold AsyncTransactionTracker until receving reply
+  mTrackersHolder.HoldUntilComplete(aAsyncTransactionTracker);
 }
 
 bool ImageBridgeChild::CanPostTask() const {
