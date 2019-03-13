@@ -93,7 +93,7 @@ public:
 
   virtual bool IsValid() { return !!mTextureClient; }
 
-  virtual TextureClient* GetTextureClient(CompositableClient* aClient) override;
+  virtual TextureClient* GetTextureClient(KnowsCompositor* aClient) override;
 
   virtual GrallocImage* AsGrallocImage() override
   {
