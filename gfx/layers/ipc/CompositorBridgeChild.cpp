@@ -822,12 +822,21 @@ void CompositorBridgeChild::HoldUntilCompositableRefReleasedIfNecessary(
     return;
   }
 
-  if (!(aClient->GetFlags() & TextureFlags::RECYCLE)) {
+  if (!(aClient->GetFlags() & TextureFlags::RECYCLE) &&
+     !aClient->NeedsFenceHandle()) {
     return;
   }
 
-  aClient->SetLastFwdTransactionId(GetFwdTransactionId());
-  mTexturesWaitingRecycled.emplace(aClient->GetSerial(), aClient);
+  if (aClient->GetFlags() & TextureFlags::RECYCLE) {
+    aClient->SetLastFwdTransactionId(GetFwdTransactionId());
+    mTexturesWaitingRecycled.emplace(aClient->GetSerial(), aClient);
+    return;
+  }
+  MOZ_ASSERT(!(aClient->GetFlags() & TextureFlags::RECYCLE));
+  MOZ_ASSERT(aClient->NeedsFenceHandle());
+  // Handle a case of fence delivery via ImageBridge.
+  // GrallocTextureData alwasys requests fence delivery if ANDROID_VERSION >= 17.
+  ImageBridgeChild::GetSingleton()->HoldUntilFenceHandleDelivery(aClient, GetFwdTransactionId());
 }
 
 void CompositorBridgeChild::NotifyNotUsed(uint64_t aTextureId,

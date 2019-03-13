@@ -116,6 +116,19 @@ class ImageBridgeParent final : public PImageBridgeParent,
 
   static already_AddRefed<ImageBridgeParent> GetInstance(ProcessId aId);
 
+  void NotifyNotUsedToNonRecycle(PTextureParent* aTexture,
+                                 uint64_t aTransactionId);
+
+  static void NotifyNotUsedToNonRecycle(base::ProcessId aChildProcessId,
+                                        PTextureParent* aTexture,
+                                        uint64_t aTransactionId);
+
+  using CompositableParentManager::SetAboutToSendAsyncMessages;
+  static void SetAboutToSendAsyncMessages(base::ProcessId aChildProcessId);
+
+  using CompositableParentManager::SendPendingAsyncMessages;
+  static void SendPendingAsyncMessages(base::ProcessId aChildProcessId);
+
   static bool NotifyImageComposites(
       nsTArray<ImageCompositeNotificationInfo>& aNotifications);
 

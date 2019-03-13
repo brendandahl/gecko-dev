@@ -393,6 +393,7 @@ void TextureClient::Destroy() {
   mBorrowedDrawTarget = nullptr;
   mReadLock = nullptr;
 
+  CancelWaitFenceHandleOnImageBridge();
   RefPtr<TextureChild> actor = mActor;
   mActor = nullptr;
 
@@ -793,8 +794,17 @@ void TextureClient::SetAddedToCompositableClient() {
   }
 }
 
-static void CancelTextureClientRecycle(uint64_t aTextureId,
-                                       LayersIPCChannel* aAllocator) {
+void
+TextureClient::CancelWaitFenceHandleOnImageBridge()
+{
+  if (!NeedsFenceHandle() || GetFlags() & TextureFlags::RECYCLE) {
+    return;
+  }
+  ImageBridgeChild::GetSingleton()->CancelWaitFenceHandle(this);
+}
+
+void CancelTextureClientRecycle(uint64_t aTextureId, LayersIPCChannel* aAllocator)
+{
   if (!aAllocator) {
     return;
   }
@@ -817,6 +827,7 @@ void TextureClient::CancelWaitForRecycle() {
     CancelTextureClientRecycle(mSerial, GetAllocator());
     return;
   }
+  CancelWaitFenceHandleOnImageBridge();
 }
 
 /* static */

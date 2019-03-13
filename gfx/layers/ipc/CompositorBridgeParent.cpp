@@ -140,12 +140,37 @@ void CompositorBridgeParentBase::NotifyNotUsed(PTextureParent* aTexture,
     return;
   }
 
-  if (!(texture->GetFlags() & TextureFlags::RECYCLE)) {
+  if (!(texture->GetFlags() & TextureFlags::RECYCLE) &&
+     !texture->NeedsFenceHandle()) {
     return;
   }
 
-  uint64_t textureId = TextureHost::GetTextureSerial(aTexture);
-  mPendingAsyncMessage.push_back(OpNotifyNotUsed(textureId, aTransactionId));
+  if (texture->GetFlags() & TextureFlags::RECYCLE) {
+    uint64_t textureId = TextureHost::GetTextureSerial(aTexture);
+    mPendingAsyncMessage.push_back(
+      OpNotifyNotUsed(textureId, aTransactionId));
+    return;
+  }
+
+  // Gralloc requests to deliver fence to client side.
+  // If client side does not use TextureFlags::RECYCLE flag,
+  // The fence can not be delivered via LayerTransactionParent.
+  // TextureClient might wait the fence delivery on main thread.
+
+  MOZ_ASSERT(ImageBridgeParent::GetInstance(GetChildProcessId()));
+  if (ImageBridgeParent::GetInstance(GetChildProcessId())) {
+    // Send message back via PImageBridge.
+    ImageBridgeParent::NotifyNotUsedToNonRecycle(
+      GetChildProcessId(),
+      aTexture,
+      aTransactionId);
+   } else {
+     NS_ERROR("ImageBridgeParent should exist");
+   }
+
+   if (!IsAboutToSendAsyncMessages()) {
+     SendPendingAsyncMessages();
+   }
 }
 
 void CompositorBridgeParentBase::SendAsyncMessage(

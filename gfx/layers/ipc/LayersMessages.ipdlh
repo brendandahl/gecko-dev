@@ -457,6 +457,11 @@ struct OpNotifyNotUsed {
   uint64_t fwdTransactionId;
 };
 
+struct OpNotifyNotUsedToNonRecycle {
+  uint64_t TextureId;
+  uint64_t fwdTransactionId;
+};
+
 union CompositableOperationDetail {
   OpPaintTextureRegion;
 
@@ -528,6 +533,7 @@ struct ImageCompositeNotification {
 
 union AsyncParentMessageData {
   OpNotifyNotUsed;
+  OpNotifyNotUsedToNonRecycle;
 };
 
 struct PaintTiming {
