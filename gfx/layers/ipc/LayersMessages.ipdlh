@@ -421,7 +421,7 @@ struct OpRemoveTexture {
 struct OpRemoveTextureAsync {
   uint64_t holderId;
   uint64_t transactionId;
-  PCompositable compositable;
+  CompositableHandle compositable;
   PTexture texture;
 };
 
